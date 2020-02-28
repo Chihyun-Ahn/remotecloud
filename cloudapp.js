@@ -57,11 +57,15 @@ interServerSocket.on('house1SyncResFromFog', function(databean){
         (err)=>{console.log(err);}
     ).then(
         (result)=>{
-            msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
-            saveParam = msgID - msgIDLast;
-            if(saveParam>=60000){
-                dbConn.insertDataToCloud(databean, 'house1');
-            }
+	    if(result != 0){
+		msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
+                saveParam = msgID - msgIDLast;
+                if(saveParam>=60000){
+                    dbConn.insertDataToCloud(databean, 'house1');
+                }
+	    }else if(result == 0){
+		dbConn.insertDataToCloud(databean, 'house1');
+	    }
         }
     );
 });
@@ -91,11 +95,16 @@ interServerSocket.on('house2SyncResFromFog', function(databean){
         (err)=>{console.log(err);}
     ).then(
         (result)=>{
-            msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
-            saveParam = msgID - msgIDLast;
-            if(saveParam>=60000){
-                dbConn.insertDataToCloud(databean, 'house2');
-            }
+	    //console.log(result); 
+            if(result != 0){
+	        msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
+                saveParam = msgID - msgIDLast;
+                if(saveParam>=60000){
+                    dbConn.insertDataToCloud(databean, 'house2');
+                }
+	    }else if(result == 0){
+		dbConn.insertDataToCloud(databean, 'house2');
+   	    }
         }
     );
 });
@@ -197,6 +206,16 @@ io.on('connection', function(socket){
 
     socket.on('realPageUserReq', function(realPageUserReqTime){
         socket.emit('realPageUserRes', realPageUserReqTime);
+    });
+
+    socket.on('resTimeTestReq', function(resTimeTestReq){
+	socket.emit('resTimeTestRes', resTimeTestReq);
+    });
+
+    socket.on('resTimeTestSave', function(resTimeTestResult){
+	var currentTime = timeGetter.now();
+        dbConn.insertResponseTime(resTimeTestResult, currentTime).
+	    catch((err)=>{console.log(err);})
     });
 
     socket.on('pastGraphDataReq', function(houseName){

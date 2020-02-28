@@ -94,6 +94,7 @@ async function selectData(house){
 
 async function getTheLastRow(house){
     let conn, result;
+    result = 0;
     var sql = 'SELECT msgID from '+house+' ORDER BY num DESC LIMIT 1';
     try{
         conn = await pool.getConnection();
@@ -103,7 +104,6 @@ async function getTheLastRow(house){
         console.log(err);
     }finally{
         if(conn) conn.end();
-        // console.log('mariadbConn.js: getTheLastRow: msgID: '+result[0].msgID);
         return result;
     }
 }
@@ -276,6 +276,20 @@ async function insertDataCloudOnly(dataBean, houseName){
     }
 }
 
+async function insertResponseTime(resTimeTestResult, currentTime){
+    let conn;
+    var sql = 'INSERT INTO responseTime(currentTime, responseTime) '+
+		'VALUES(?,?)';
+    try{
+	conn = await pool.getConnection();
+	conn.query('use farmData');
+	conn.query(sql, [currentTime, resTimeTestResult]);
+    }catch(err){
+	console.log(err);
+    }finally{
+	if(conn) conn.end();
+    }
+}
 
 
 module.exports = {
@@ -288,5 +302,6 @@ module.exports = {
     getLast5Data:getLast5Data,
     insertDataCloudOnly:insertDataCloudOnly,
     getGraphDatasetCloudOnly:getGraphDatasetCloudOnly,
-    insertUserArrTimeCloudOnly:insertUserArrTimeCloudOnly
+    insertUserArrTimeCloudOnly:insertUserArrTimeCloudOnly,
+    insertResponseTime: insertResponseTime
 };

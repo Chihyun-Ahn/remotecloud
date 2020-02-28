@@ -173,7 +173,28 @@ GROUP BY table_name
 ORDER BY data_length DESC LIMIT 10;
 
 
+CREATE TABLE responseTime(
+    num             INT PRIMARY KEY AUTO_INCREMENT,
+    currentTime	    VARCHAR(10),
+    responseTime    VARCHAR(8)
+);
 
+use farmData;
+
+DELETE FROM house1;
+DELETE FROM house2;
+DELETE FROM house1CloudOnly;
+DELETE FROM house2CloudOnly;
+DELETE FROM responseTime;
+
+
+ALTER TABLE house1 AUTO_INCREMENT = 1;
+ALTER TABLE house2 AUTO_INCREMENT = 1;
+ALTER TABLE house1CloudOnly AUTO_INCREMENT = 1;
+ALTER TABLE house2CloudOnly AUTO_INCREMENT = 1;
+ALTER TABLE responseTime AUTO_INCREMENT = 1;
+
+commit;
 
 ##################################################
 Cloud 데이터베이스의 Pseudo data.
