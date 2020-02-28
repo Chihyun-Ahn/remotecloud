@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>LOG IN</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="index.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script>
+			$(document).ready(function(){
+				$('#submitBtn').click(function(req, res){
+					$('#userLoginClickTime').val(now());
+					var id = $('#login').val();
+					var password = $('#password').val();
+					if(id == '' || password == ''){
+						alert('아이디, 또는 비밀번호를 입력해주세요.');
+					}else{
+						$('#myForm').submit();
+					}
+				});
+			});
+			function now(){
+				var date = new Date();
+				var hours = addZero(date.getHours());
+				var mins = addZero(date.getMinutes());
+				var secs = addZero(date.getSeconds());
+				var millis = addZeroMilli(date.getMilliseconds());
+				var timeSum = hours+mins+secs+millis;
+				return timeSum;
+			}
+			function addZero(num){
+				var n = num.toString();
+				var x = (n<10)?("0"+n):(""+n);
+				return x;
+			}
+
+			function addZeroMilli(num){
+				var result = "";
+				if(num<10){
+					result = "00" + num;
+				}else if(num >= 10 && num < 100){
+					result = "0" + num;
+				}else if(num >= 100 && num < 1000){
+					result = "" + num;
+				}else{
+					console.log('addZeroMilli: Input value is invalid.');
+				}
+				return result;
+			}
+		</script>
+	</head>
+	<body>
+		<div class="wrapper fadeInDown">
+			<div id="formContent">
+			  <h2 class="title"> 농장 모니터링 시스템 </h2>
+			  <!-- Icon -->
+			  <div class="fadeIn first">
+				<img src="chicken.png" id="icon" alt="User Icon" />
+			  </div>
+		  
+			  <!-- 로그인 폼 -->
+			  <form action="/loginClick.do" method="post" id="myForm" name="myForm">
+				<input type="text" id="logID" class="fadeIn second" name="logID" placeholder="아이디">
+				<input type="text" id="password" class="fadeIn third" name="password" placeholder="비밀번호">
+				<input type="hidden" id="userLoginClickTime" name="userLoginClickTime" value="">
+				<input type="button" id="submitBtn" class="fadeIn fourth" value="로그인">
+			  </form>
+			</div>
+		  </div>
+	</body>
+</html>

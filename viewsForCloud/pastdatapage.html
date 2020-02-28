@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>과거 데이터</title>
+  <meta charset="UTF-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script>
+  <script src="https://www.chartjs.org/samples/latest/utils.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="pastdatapage.css" >
+
+  <script>
+    var socket = io();
+    var currentUser;
+
+    $(document).ready(function(){
+      socket.emit('userWho');
+      socket.on('currentUserIs', function(user){
+        currentUser = user;
+        $('#currentUser').html(currentUser+'님 농장');
+        $('#realtimepage').attr('href', './realdata.do?user='+currentUser);
+        $('#pastdatapage').attr('href', './pastdatapage.do?user='+currentUser);
+        $('#controlpage').attr('href', './controlpage.do?user='+currentUser);
+        $('#loginpage').attr('href', './login.do');
+      });
+
+      socket.emit('pastGraphDataReq', 'house1');
+      socket.emit('pastGraphDataReq', 'house2');
+      socket.emit('last5DataReq', 'house1');
+      socket.emit('last5DataReq', 'house2');
+
+      setInterval(()=>{
+        socket.emit('last5DataReq', 'house1');
+        socket.emit('last5DataReq', 'house2');
+        socket.emit('pastGraphDataReq', 'house1');
+        socket.emit('pastGraphDataReq', 'house2');
+      }, 10000);
+
+      socket.on('last5DataRes', function(data){
+        var houseNum = data.houseName[5]; //house number. interger.
+        for(i=1;i<=5;i++){
+          var msgID     = '#h'+houseNum+'MsgID'+i;
+          var lastTime  = '#h'+houseNum+'LastTime'+i;
+          var avgTemp   = '#h'+houseNum+'AvgTemp'+i;
+          var avgHumid  = '#h'+houseNum+'AvgHumid'+i;
+
+          var lastTimeImsi = data.result[i-1].msgID.substr(2,12);
+          var lastTimeFinal = lastTimeImsi.substr(0,2)+'-'+
+            lastTimeImsi.substr(2,2)+'-'+lastTimeImsi.substr(4,2)+
+            ' '+lastTimeImsi.substr(6,2)+':'+lastTimeImsi.substr(8,2)+
+            ':'+lastTimeImsi.substr(10,2);
+          $(msgID).html(data.result[i-1].msgID);
+          $(lastTime).html(lastTimeFinal);
+          $(avgTemp).html(data.result[i-1].avgTemp);
+          $(avgHumid).html(data.result[i-1].avgHumid);
+        }
+        
+
+
+      //   <td id="h1MsgID5" class="text-left">--.-</th>
+      // <td id="h1LastTime5" class="text-left">--.-</th>
+      // <td id="h1AvgTemp5" class="text-left">--.-</th>
+      // <td id="h1AvgHumid5" class="text-left">--.-</th>
+
+
+
+      });
+      socket.on('pastGraphDataRes', function(data){
+        var dataSet = data.result;
+        makeGraph(data.houseName, dataSet);
+      });
+
+      $('#pastPageUserReqBtn').click(function(){
+        var pastPageUserReqTime = now();
+        socket.emit('pastPageUserReq', pastPageUserReqTime);
+      });
+      socket.on('pastPageUserRes', function(pastPageUserReqTime){
+        var pastPageUserResTime = now();
+        var pastPageUserResTimeCalc = convertToMilli(pastPageUserResTime)-convertToMilli(pastPageUserReqTime);
+        console.log('Pastdata page response time: '+pastPageUserResTimeCalc);
+      });
+    });
+
+    function convertToMilli(time){
+      var hour = parseInt(time.substr(0,2));
+      var min = parseInt(time.substr(2,2));
+      var sec = parseInt(time.substr(4,2));
+      var milsec = parseInt(time.substr(6,3));
+
+      var hourToMilli = hour*60*60*1000;
+      var minToMilli = min*60*1000;
+      var secToMilli = sec*1000;
+
+      var result = hourToMilli+minToMilli+secToMilli+milsec;
+      return result;
+    }
+
+    function now(){
+      var date = new Date();
+      var hours = addZero(date.getHours());
+      var mins = addZero(date.getMinutes());
+      var secs = addZero(date.getSeconds());
+      var millis = addZeroMilli(date.getMilliseconds());
+      var timeSum = hours+mins+secs+millis;
+      return timeSum;
+    }
+    function addZero(num){
+      var n = num.toString();
+      var x = (n<10)?("0"+n):(""+n);
+      return x;
+    }
+
+    function addZeroMilli(num){
+      var result = "";
+      if(num<10){
+        result = "00" + num;
+      }else if(num >= 10 && num < 100){
+        result = "0" + num;
+      }else if(num >= 100 && num < 1000){
+        result = "" + num;
+      }else{
+        console.log('addZeroMilli: Input value is invalid.');
+      }
+      return result;
+    }
+
+    //################# 그래프 만들기 함수 시작#################
+    //################# 그래프 만들기 함수 시작#################
+
+    function makeGraph(houseName, dataSet){
+      var chartID = 'myChart' + houseName[5];
+      var chartTitle = houseName[5]+'동 과거데이터';
+      var timeLabel = new Array();
+      var avgTemp     = new Array();
+    
+      for(i=0;i<100;i++){
+        var imsiTime = dataSet[i].msgID.substr(8,6);
+        if(i==0){console.log(dataSet[i].msgID);}
+        
+        timeLabel[99-i] = imsiTime.substr(0,2)+':'+imsiTime.substr(2,2)+':'+imsiTime.substr(4,2);
+        avgTemp[99-i] = dataSet[i].avgTemp;
+      }
+      
+      config = {
+        type: 'line',
+        data: {
+          labels: timeLabel,
+          datasets: [{
+              label: '평균온도',
+              backgroundColor: window.chartColors.red, 
+              borderColor: window.chartColors.red,
+              data: avgTemp,
+              fill: false 
+            }
+          ]
+        },
+        options: {
+          responsive: true, 
+          title: {
+            display: true, 
+            text: chartTitle
+          },
+          tooltips: {
+            mode: 'index', 
+            intersect: false,
+          },
+          hover: {
+            mode: 'nearest', 
+            intersect: true
+          }, 
+          scales: {
+            xAxes: [{
+              // type: 'time',
+              display: true, 
+              scaleLabel: {
+                display: true,
+                labelString: 'TIME'
+              }
+            }],
+            yAxes: [{
+              ticks: {
+                callback: function(value, index, values){
+                  return value + ' ºC';
+                }
+              },
+              display: true,
+              scaleLabel: {
+                display: true, 
+                labelString: '평균온도'
+              }
+            }]
+          }
+        }
+      }
+      
+      var ctx = document.getElementById(chartID).getContext('2d');
+      window.myLine = new Chart(ctx, config);
+      var colorNames = Object.keys(window.chartColors);
+    }
+
+  </script>
+</head>
+<!-- ####################문서 바디 시작#################### -->
+<!-- ####################문서 바디 시작#################### -->
+<body>	
+  <div class="topnav">
+    <a id="realtimepage" href="#">REAL-TIME화면</a>  
+    <a id="pastdatapage" class="active" href="#">과거데이터</a>  
+    <a id="controlpage" href="#">제어화면</a>  
+    <a id="loginpage" href="#">로그인화면</a>  
+  </div>
+  <div class="currentUser" id="currentUser">--</div>
+  <div class="table-title">
+    <h3>HOUSE1</h3>
+    <button type="button" id="pastPageUserReqBtn" onClick="">Response time check</button>
+  </div>
+<!-- #######################1동 테이블##################### -->
+<!-- #######################1동 테이블##################### -->
+<div class="table-wrapper">
+  <table class="table-fill">
+    <tr>
+      <th class="text-left">메세지ID</th>
+      <th class="text-left">마지막 시각</th>
+      <th class="text-left">평균 온도</th>
+      <th class="text-left">평균 습도</th>
+    </tr>
+    <tr>
+      <td id="h1MsgID1" class="text-left">--.-</th>
+      <td id="h1LastTime1" class="text-left">--.-</th>
+      <td id="h1AvgTemp1" class="text-left">--.-</th>
+      <td id="h1AvgHumid1" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h1MsgID2" class="text-left">--.-</th>
+      <td id="h1LastTime2" class="text-left">--.-</th>
+      <td id="h1AvgTemp2" class="text-left">--.-</th>
+      <td id="h1AvgHumid2" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h1MsgID3" class="text-left">--.-</th>
+      <td id="h1LastTime3" class="text-left">--.-</th>
+      <td id="h1AvgTemp3" class="text-left">--.-</th>
+      <td id="h1AvgHumid3" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h1MsgID4" class="text-left">--.-</th>
+      <td id="h1LastTime4" class="text-left">--.-</th>
+      <td id="h1AvgTemp4" class="text-left">--.-</th>
+      <td id="h1AvgHumid4" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h1MsgID5" class="text-left">--.-</th>
+      <td id="h1LastTime5" class="text-left">--.-</th>
+      <td id="h1AvgTemp5" class="text-left">--.-</th>
+      <td id="h1AvgHumid5" class="text-left">--.-</th>
+    </tr>
+  </table>
+  <canvas class="graph" id="myChart1" style="display: block; height: 87px; width: 175px;" width="218" height="108" class="chartjs-render-monitor"></canvas>
+</div>
+<!-- ####################################### 2동 테이블 ######################################-->
+<!-- ####################################### 2동 테이블 ######################################-->
+<div class="table-title">
+  <h3>HOUSE2</h3>
+</div>
+<div class="table-wrapper">
+  <table class="table-fill">
+    <tr>
+      <th class="text-left">메세지ID</th>
+      <th class="text-left">마지막 시각</th>
+      <th class="text-left">평균 온도</th>
+      <th class="text-left">평균 습도</th>
+    </tr>
+    <tr>
+      <td id="h2MsgID1" class="text-left">--.-</th>
+      <td id="h2LastTime1" class="text-left">--.-</th>
+      <td id="h2AvgTemp1" class="text-left">--.-</th>
+      <td id="h2AvgHumid1" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h2MsgID2" class="text-left">--.-</th>
+      <td id="h2LastTime2" class="text-left">--.-</th>
+      <td id="h2AvgTemp2" class="text-left">--.-</th>
+      <td id="h2AvgHumid2" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h2MsgID3" class="text-left">--.-</th>
+      <td id="h2LastTime3" class="text-left">--.-</th>
+      <td id="h2AvgTemp3" class="text-left">--.-</th>
+      <td id="h2AvgHumid3" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h2MsgID4" class="text-left">--.-</th>
+      <td id="h2LastTime4" class="text-left">--.-</th>
+      <td id="h2AvgTemp4" class="text-left">--.-</th>
+      <td id="h2AvgHumid4" class="text-left">--.-</th>
+    </tr>
+    <tr>
+      <td id="h2MsgID5" class="text-left">--.-</th>
+      <td id="h2LastTime5" class="text-left">--.-</th>
+      <td id="h2AvgTemp5" class="text-left">--.-</th>
+      <td id="h2AvgHumid5" class="text-left">--.-</th>
+    </tr>
+  </table>
+  <canvas class="graph" id="myChart2" style="display: block; height: 87px; width: 175px;" width="218" height="108" class="chartjs-render-monitor"></canvas>
+</div>
+</body>
+</html>

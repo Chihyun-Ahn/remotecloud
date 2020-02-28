@@ -1,0 +1,391 @@
+Install mariadb for windows. then run it in cmd.
+
+mysql -u root -p  //4581
+mysql -u admin -p  //1234
+
+CREATE DATABASE farmData;
+USE farmData;
+
+DROP TABLE House1;
+DROP TABLE House2;
+
+CREATE TABLE House1(
+    num         	INT PRIMARY KEY AUTO_INCREMENT,
+    msgID           VARCHAR(15),
+    edgeDepTime     VARCHAR(10),
+    fogArrTime      VARCHAR(10), 
+    fogDepTime      VARCHAR(10),
+    cloudArrTime    VARCHAR(10),
+    avgTemp         DECIMAL(4,1),
+    avgHumid         DECIMAL(4,1)
+);
+
+CREATE TABLE House2(
+    num         	INT PRIMARY KEY AUTO_INCREMENT,
+    msgID           VARCHAR(15),
+    edgeDepTime     VARCHAR(10),
+    fogArrTime      VARCHAR(10), 
+    fogDepTime      VARCHAR(10),
+    cloudArrTime    VARCHAR(10),
+    avgTemp         DECIMAL(4,1),
+    avgHumid         DECIMAL(4,1)
+);
+
+INSERT INTO House1(
+    msgID, edgeDepTime, fogArrTime, fogDepTime, 
+    cloudArrTime, avgTemp, avgHumid
+) VALUES(
+    'h1200131000000', 100000000, 100000000, 100000000,
+    100000000, 99, 99
+);
+
+INSERT INTO House2(
+    msgID, edgeDepTime, fogArrTime, fogDepTime, 
+    cloudArrTime, avgTemp, avgHumid
+) VALUES(
+    'h2200131000000', 100000000, 100000000, 100000000,
+    100000000, 99, 99
+);
+
+CREATE TABLE identification(
+    num         	INT PRIMARY KEY AUTO_INCREMENT,
+    id              VARCHAR(25),
+    password        VARCHAR(25),
+    phoneNum        VARCHAR(25),
+    address         VARCHAR(50)
+);
+
+INSERT INTO identification(id, password, phoneNum, address) VALUES('abcd1', '1234', '010-0000-0000', '00-00, Cheolwon-gun, Gangwon-do');
+INSERT INTO identification(id, password, phoneNum, address) VALUES('abcd12', '1234', '010-0000-0001', '00-01, Pocheon-si, Gyeonggi-do');
+INSERT INTO identification(id, password, phoneNum, address) VALUES('abcd123', '1234', '010-0000-0002', '00-02, Paju-si, Gyeonggi-do');
+INSERT INTO identification(id, password, phoneNum, address) VALUES('abcd13', '1234', '010-0000-0003', '00-03, Hwacheon-gun, Gangwon-do');
+INSERT INTO identification(id, password, phoneNum, address) VALUES('abcd134', '1234', '010-0000-0004', '00-04, Jincheon-gun, Chungcheongbuk-do');
+
+INSERT INTO House1(msgTimeTemp, msgTimeHumid, arrTime, tarTemp,
+        tempBand, ventilPer, temp1, temp2, temp3, temp4, temp5, temp6, avgTemp,
+        humid1, humid2, humid3, humid4, humid5, humid6, avgHumid, fanMode,
+        fan1, fan2, fan3, waterMode, water, alarm) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+
+INSERT INTO House1(msgTimeTemp, msgTimeHumid) VALUES("-", "-");
+
+INSERT INTO House1(tarTemp, tempBand) 
+VALUES(
+    22.0, 3.0
+);
+
+SHOW tables;
+SHOW DATABASES;
+
+SELECT user();
+CREATE USER admin@localhost IDENTIFIED BY '1234';
+SELECT host, user, password FROM mysql.user;
+GRANT ALL PRIVILEGES ON farmData.* TO admin@localhost IDENTIFIED BY '1234';
+
+SELECT * FROM House1 ORDER BY num LIMIT 1;
+
+DELETE FROM House1;
+ALTER TABLE House1 AUTO_INCREMENT=1;
+
+클라우드 서버. 있어야 되는 것. 
+1. 사용자 테이블
+2. house1, House2
+ house1,2에는?
+ 1시간 간격의 데이터가 저장된다. 
+ num, msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, 평균 온도, 평균 습도 
+
+// cloudOnly server의 데이터 베이스
+
+CREATE TABLE house1CloudOnly(
+    num         	INT PRIMARY KEY AUTO_INCREMENT,
+    msgID           VARCHAR(15),
+    edgeDepTime     VARCHAR(10),
+    fogArrTime      VARCHAR(10),
+    fogDepTime      VARCHAR(10),
+    userArrTime     VARCHAR(10),
+    tarTemp	        DECIMAL(4,1),
+    tempBand	    DECIMAL(3,1),
+    ventilPer	    DECIMAL(4,1),
+    temp1	       	DECIMAL(4,1),
+    temp2	       	DECIMAL(4,1),
+    temp3	       	DECIMAL(4,1),
+    temp4	       	DECIMAL(4,1),
+    temp5	       	DECIMAL(4,1),
+    temp6	       	DECIMAL(4,1),
+    humid1       	DECIMAL(4,1),
+    humid2       	DECIMAL(4,1),
+    humid3       	DECIMAL(4,1),
+    humid4       	DECIMAL(4,1),
+    humid5       	DECIMAL(4,1),
+    humid6       	DECIMAL(4,1),
+    fanMode	        TINYINT(1),
+    fan1		    TINYINT(1),
+    fan2		    TINYINT(1),
+    fan3		    TINYINT(1),
+    waterMode	    TINYINT(1),
+    water		    TINYINT(1),
+    alarm		    TINYINT(1)
+);
+
+ALTER TABLE house1CloudOnly ADD COLUMN cloudArrTime VARCHAR(10) AFTER fogDepTime;
+
+CREATE TABLE house2CloudOnly(
+    num         	INT PRIMARY KEY AUTO_INCREMENT,
+    msgID           VARCHAR(15),
+    edgeDepTime     VARCHAR(10),
+    fogArrTime      VARCHAR(10),
+    fogDepTime      VARCHAR(10),
+    userArrTime     VARCHAR(10),
+    tarTemp	        DECIMAL(4,1),
+    tempBand	    DECIMAL(3,1),
+    ventilPer	    DECIMAL(4,1),
+    temp1	       	DECIMAL(4,1),
+    temp2	       	DECIMAL(4,1),
+    temp3	       	DECIMAL(4,1),
+    temp4	       	DECIMAL(4,1),
+    temp5	       	DECIMAL(4,1),
+    temp6	       	DECIMAL(4,1),
+    humid1       	DECIMAL(4,1),
+    humid2       	DECIMAL(4,1),
+    humid3       	DECIMAL(4,1),
+    humid4       	DECIMAL(4,1),
+    humid5       	DECIMAL(4,1),
+    humid6       	DECIMAL(4,1),
+    fanMode	        TINYINT(1),
+    fan1		    TINYINT(1),
+    fan2		    TINYINT(1),
+    fan3		    TINYINT(1),
+    waterMode	    TINYINT(1),
+    water		    TINYINT(1),
+    alarm		    TINYINT(1)
+);
+
+ALTER TABLE house2CloudOnly ADD COLUMN cloudArrTime VARCHAR(10) AFTER fogDepTime;
+
+
+SELECT 
+table_name,
+table_rows,
+round(data_length/(1024*1024),2) as 'DATA_SIZE(MB)',
+round(index_length/(1024*1024),2) as 'INDEX_SIZE(MB)'
+FROM information_schema.TABLES 
+WHERE table_schema = 'farmData'
+GROUP BY table_name
+ORDER BY data_length DESC LIMIT 10;
+
+
+
+
+##################################################
+Cloud 데이터베이스의 Pseudo data.
+
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211057',205727089,205727094,205727099,205727119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211107',205737089,205737094,205737099,205737119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211117',205747089,205747094,205747099,205747119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211127',205757089,205757094,205757099,205757119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211137',205767089,205767094,205767099,205767119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211147',205777089,205777094,205777099,205777119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211157',205787089,205787094,205787099,205787119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211207',205797089,205797094,205797099,205797119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211217',205807089,205807094,205807099,205807119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211227',205817089,205817094,205817099,205817119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211237',205827089,205827094,205827099,205827119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211247',205837089,205837094,205837099,205837119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211257',205847089,205847094,205847099,205847119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211307',205857089,205857094,205857099,205857119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211317',205867089,205867094,205867099,205867119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211327',205877089,205877094,205877099,205877119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211337',205887089,205887094,205887099,205887119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211347',205897089,205897094,205897099,205897119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211357',205907089,205907094,205907099,205907119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211407',205917089,205917094,205917099,205917119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211417',205927089,205927094,205927099,205927119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211427',205937089,205937094,205937099,205937119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211437',205947089,205947094,205947099,205947119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211447',205957089,205957094,205957099,205957119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211457',205967089,205967094,205967099,205967119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211507',205977089,205977094,205977099,205977119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211517',205987089,205987094,205987099,205987119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211527',205997089,205997094,205997099,205997119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211537',206007089,206007094,206007099,206007119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211547',206017089,206017094,206017099,206017119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211557',206027089,206027094,206027099,206027119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211607',206037089,206037094,206037099,206037119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211617',206047089,206047094,206047099,206047119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211627',206057089,206057094,206057099,206057119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211637',206067089,206067094,206067099,206067119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211647',206077089,206077094,206077099,206077119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211657',206087089,206087094,206087099,206087119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211707',206097089,206097094,206097099,206097119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211717',206107089,206107094,206107099,206107119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211727',206117089,206117094,206117099,206117119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211737',206127089,206127094,206127099,206127119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211747',206137089,206137094,206137099,206137119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211757',206147089,206147094,206147099,206147119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211807',206157089,206157094,206157099,206157119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211817',206167089,206167094,206167099,206167119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211827',206177089,206177094,206177099,206177119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211837',206187089,206187094,206187099,206187119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211847',206197089,206197094,206197099,206197119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211857',206207089,206207094,206207099,206207119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211907',206217089,206217094,206217099,206217119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211917',206227089,206227094,206227099,206227119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211927',206237089,206237094,206237099,206237119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211937',206247089,206247094,206247099,206247119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211947',206257089,206257094,206257099,206257119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203211957',206267089,206267094,206267099,206267119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212007',206277089,206277094,206277099,206277119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212017',206287089,206287094,206287099,206287119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212027',206297089,206297094,206297099,206297119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212037',206307089,206307094,206307099,206307119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212047',206317089,206317094,206317099,206317119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212057',206327089,206327094,206327099,206327119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212107',206337089,206337094,206337099,206337119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212117',206347089,206347094,206347099,206347119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212127',206357089,206357094,206357099,206357119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212137',206367089,206367094,206367099,206367119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212147',206377089,206377094,206377099,206377119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212157',206387089,206387094,206387099,206387119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212207',206397089,206397094,206397099,206397119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212217',206407089,206407094,206407099,206407119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212227',206417089,206417094,206417099,206417119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212237',206427089,206427094,206427099,206427119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212247',206437089,206437094,206437099,206437119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212257',206447089,206447094,206447099,206447119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212307',206457089,206457094,206457099,206457119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212317',206467089,206467094,206467099,206467119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212327',206477089,206477094,206477099,206477119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212337',206487089,206487094,206487099,206487119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212347',206497089,206497094,206497099,206497119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212357',206507089,206507094,206507099,206507119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212407',206517089,206517094,206517099,206517119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212417',206527089,206527094,206527099,206527119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212427',206537089,206537094,206537099,206537119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212437',206547089,206547094,206547099,206547119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212447',206557089,206557094,206557099,206557119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212457',206567089,206567094,206567099,206567119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212507',206577089,206577094,206577099,206577119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212517',206587089,206587094,206587099,206587119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212527',206597089,206597094,206597099,206597119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212537',206607089,206607094,206607099,206607119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212547',206617089,206617094,206617099,206617119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212557',206627089,206627094,206627099,206627119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212607',206637089,206637094,206637099,206637119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212617',206647089,206647094,206647099,206647119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212627',206657089,206657094,206657099,206657119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212637',206667089,206667094,206667099,206667119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212647',206677089,206677094,206677099,206677119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212657',206687089,206687094,206687099,206687119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212707',206697089,206697094,206697099,206697119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212717',206707089,206707094,206707099,206707119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212727',206717089,206717094,206717099,206717119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212737',206727089,206727094,206727099,206727119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212747',206737089,206737094,206737099,206737119,27.1,14.4);
+INSERT INTO House1(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h1200203212757',206747089,206747094,206747099,206747119,27.1,14.4);
+
+
+
+
+
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211057',205727089,205727094,205727099,205727119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211107',205737089,205737094,205737099,205737119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211117',205747089,205747094,205747099,205747119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211127',205757089,205757094,205757099,205757119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211137',205767089,205767094,205767099,205767119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211147',205777089,205777094,205777099,205777119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211157',205787089,205787094,205787099,205787119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211207',205797089,205797094,205797099,205797119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211217',205807089,205807094,205807099,205807119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211227',205817089,205817094,205817099,205817119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211237',205827089,205827094,205827099,205827119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211247',205837089,205837094,205837099,205837119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211257',205847089,205847094,205847099,205847119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211307',205857089,205857094,205857099,205857119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211317',205867089,205867094,205867099,205867119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211327',205877089,205877094,205877099,205877119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211337',205887089,205887094,205887099,205887119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211347',205897089,205897094,205897099,205897119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211357',205907089,205907094,205907099,205907119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211407',205917089,205917094,205917099,205917119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211417',205927089,205927094,205927099,205927119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211427',205937089,205937094,205937099,205937119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211437',205947089,205947094,205947099,205947119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211447',205957089,205957094,205957099,205957119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211457',205967089,205967094,205967099,205967119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211507',205977089,205977094,205977099,205977119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211517',205987089,205987094,205987099,205987119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211527',205997089,205997094,205997099,205997119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211537',206007089,206007094,206007099,206007119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211547',206017089,206017094,206017099,206017119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211557',206027089,206027094,206027099,206027119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211607',206037089,206037094,206037099,206037119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211617',206047089,206047094,206047099,206047119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211627',206057089,206057094,206057099,206057119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211637',206067089,206067094,206067099,206067119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211647',206077089,206077094,206077099,206077119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211657',206087089,206087094,206087099,206087119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211707',206097089,206097094,206097099,206097119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211717',206107089,206107094,206107099,206107119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211727',206117089,206117094,206117099,206117119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211737',206127089,206127094,206127099,206127119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211747',206137089,206137094,206137099,206137119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211757',206147089,206147094,206147099,206147119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211807',206157089,206157094,206157099,206157119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211817',206167089,206167094,206167099,206167119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211827',206177089,206177094,206177099,206177119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211837',206187089,206187094,206187099,206187119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211847',206197089,206197094,206197099,206197119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211857',206207089,206207094,206207099,206207119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211907',206217089,206217094,206217099,206217119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211917',206227089,206227094,206227099,206227119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211927',206237089,206237094,206237099,206237119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211937',206247089,206247094,206247099,206247119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211947',206257089,206257094,206257099,206257119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203211957',206267089,206267094,206267099,206267119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212007',206277089,206277094,206277099,206277119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212017',206287089,206287094,206287099,206287119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212027',206297089,206297094,206297099,206297119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212037',206307089,206307094,206307099,206307119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212047',206317089,206317094,206317099,206317119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212057',206327089,206327094,206327099,206327119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212107',206337089,206337094,206337099,206337119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212117',206347089,206347094,206347099,206347119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212127',206357089,206357094,206357099,206357119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212137',206367089,206367094,206367099,206367119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212147',206377089,206377094,206377099,206377119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212157',206387089,206387094,206387099,206387119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212207',206397089,206397094,206397099,206397119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212217',206407089,206407094,206407099,206407119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212227',206417089,206417094,206417099,206417119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212237',206427089,206427094,206427099,206427119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212247',206437089,206437094,206437099,206437119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212257',206447089,206447094,206447099,206447119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212307',206457089,206457094,206457099,206457119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212317',206467089,206467094,206467099,206467119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212327',206477089,206477094,206477099,206477119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212337',206487089,206487094,206487099,206487119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212347',206497089,206497094,206497099,206497119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212357',206507089,206507094,206507099,206507119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212407',206517089,206517094,206517099,206517119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212417',206527089,206527094,206527099,206527119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212427',206537089,206537094,206537099,206537119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212437',206547089,206547094,206547099,206547119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212447',206557089,206557094,206557099,206557119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212457',206567089,206567094,206567099,206567119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212507',206577089,206577094,206577099,206577119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212517',206587089,206587094,206587099,206587119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212527',206597089,206597094,206597099,206597119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212537',206607089,206607094,206607099,206607119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212547',206617089,206617094,206617099,206617119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212557',206627089,206627094,206627099,206627119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212607',206637089,206637094,206637099,206637119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212617',206647089,206647094,206647099,206647119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212627',206657089,206657094,206657099,206657119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212637',206667089,206667094,206667099,206667119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212647',206677089,206677094,206677099,206677119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212657',206687089,206687094,206687099,206687119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212707',206697089,206697094,206697099,206697119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212717',206707089,206707094,206707099,206707119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212727',206717089,206717094,206717099,206717119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212737',206727089,206727094,206727099,206727119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212747',206737089,206737094,206737099,206737119,27.1,14.4);
+INSERT INTO House2(msgID, edgeDepTime, fogArrTime, fogDepTime, cloudArrTime, avgTemp, avgHumid) VALUES('h2200203212757',206747089,206747094,206747099,206747119,27.1,14.4);
