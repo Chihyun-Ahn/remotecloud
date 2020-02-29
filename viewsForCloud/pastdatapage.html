@@ -56,7 +56,7 @@
             $(avgTemp).html(data.result[i-1].avgTemp);
             $(avgHumid).html(data.result[i-1].avgHumid);
           }
-	}else if(data.result.length == 5){
+	}else if(data.result.length != 5){
  	  console.log('Data is not enough to call. Please wait.. ');
 	}        
         //   <td id="h1MsgID5" class="text-left">--.-</th>

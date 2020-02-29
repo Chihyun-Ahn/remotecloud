@@ -39,33 +39,31 @@
       }, 10000);
 
       socket.on('last5DataRes', function(data){
-        var houseNum = data.houseName[5]; //house number. interger.
-        for(i=1;i<=5;i++){
-          var msgID     = '#h'+houseNum+'MsgID'+i;
-          var lastTime  = '#h'+houseNum+'LastTime'+i;
-          var avgTemp   = '#h'+houseNum+'AvgTemp'+i;
-          var avgHumid  = '#h'+houseNum+'AvgHumid'+i;
+	if(data.result.length == 5){
+	  var houseNum = data.houseName[5]; //house number. interger.
+          for(i=1;i<=5;i++){
+            var msgID     = '#h'+houseNum+'MsgID'+i;
+            var lastTime  = '#h'+houseNum+'LastTime'+i;
+            var avgTemp   = '#h'+houseNum+'AvgTemp'+i;
+            var avgHumid  = '#h'+houseNum+'AvgHumid'+i;
 
-          var lastTimeImsi = data.result[i-1].msgID.substr(2,12);
-          var lastTimeFinal = lastTimeImsi.substr(0,2)+'-'+
-            lastTimeImsi.substr(2,2)+'-'+lastTimeImsi.substr(4,2)+
-            ' '+lastTimeImsi.substr(6,2)+':'+lastTimeImsi.substr(8,2)+
-            ':'+lastTimeImsi.substr(10,2);
-          $(msgID).html(data.result[i-1].msgID);
-          $(lastTime).html(lastTimeFinal);
-          $(avgTemp).html(data.result[i-1].avgTemp);
-          $(avgHumid).html(data.result[i-1].avgHumid);
-        }
-        
-
-
+            var lastTimeImsi = data.result[i-1].msgID.substr(2,12);
+            var lastTimeFinal = lastTimeImsi.substr(0,2)+'-'+
+              lastTimeImsi.substr(2,2)+'-'+lastTimeImsi.substr(4,2)+
+              ' '+lastTimeImsi.substr(6,2)+':'+lastTimeImsi.substr(8,2)+
+              ':'+lastTimeImsi.substr(10,2);
+            $(msgID).html(data.result[i-1].msgID);
+            $(lastTime).html(lastTimeFinal);
+            $(avgTemp).html(data.result[i-1].avgTemp);
+            $(avgHumid).html(data.result[i-1].avgHumid);
+          }
+	}else if(data.result.length != 5){
+	  console.log('Data is not enough to call. Please wait.. ');
+	}
       //   <td id="h1MsgID5" class="text-left">--.-</th>
       // <td id="h1LastTime5" class="text-left">--.-</th>
       // <td id="h1AvgTemp5" class="text-left">--.-</th>
       // <td id="h1AvgHumid5" class="text-left">--.-</th>
-
-
-
       });
       socket.on('pastGraphDataRes', function(data){
         var dataSet = data.result;
@@ -135,13 +133,15 @@
       var chartTitle = houseName[5]+'동 과거데이터';
       var timeLabel = new Array();
       var avgTemp     = new Array();
-    
-      for(i=0;i<100;i++){
-        var imsiTime = dataSet[i].msgID.substr(8,6);
-        if(i==0){console.log(dataSet[i].msgID);}
-        
-        timeLabel[99-i] = imsiTime.substr(0,2)+':'+imsiTime.substr(2,2)+':'+imsiTime.substr(4,2);
-        avgTemp[99-i] = dataSet[i].avgTemp;
+      if(dataSet.length == 100){
+        for(i=0;i<100;i++){
+          var imsiTime = dataSet[i].msgID.substr(8,6);
+          if(i==0){console.log(dataSet[i].msgID);}    
+          timeLabel[99-i] = imsiTime.substr(0,2)+':'+imsiTime.substr(2,2)+':'+imsiTime.substr(4,2);
+          avgTemp[99-i] = dataSet[i].avgTemp;
+        }
+      }else if(dataSet.length != 100){
+	console.log('Data is not enough to draw a graph. Please wait..');
       }
       
       config = {

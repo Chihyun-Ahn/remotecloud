@@ -29,6 +29,15 @@ var io = require('socket.io')(http);
 //###########################################################################################
 //###################################서버 간 소켓 통신#######################################
 
+interServerSocket.on('connect', function(){
+    console.log('####connected####');
+});
+
+interServerSocket.on('disconnect', function(){
+    console.log('Edge socket is disconnected');
+});
+
+
 interServerSocket.on('house1Msg', function(databean){
     var fogDepTime = timeGetter.convertToMilli(databean.house[0].fogDepTime);
     var imsiData = {msgID: databean.house[0].msgID, fogDepTime: fogDepTime};
@@ -45,12 +54,16 @@ interServerSocket.on('house1SyncResFromFog', function(databean){
         (err)=>{console.log(err);}
     ).then(
         (result)=>{
-            msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
-            saveParam = msgID - msgIDLast;
-            if(saveParam>=60000){
-                // socketGlobal.emit('cloudMsg', databean);
-                dbConn.insertDataToCloud(databean, 'house1');
-            }
+	    if(result != 0){
+                msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
+                saveParam = msgID - msgIDLast;
+                if(saveParam>=60000){
+                    // socketGlobal.emit('cloudMsg', databean);
+                    dbConn.insertDataToCloud(databean, 'house1');
+                }
+	    }else if(result == 0){
+		dbConn.insertDataToCloud(databean, 'house1');
+	    }
         }
     );
 });
@@ -71,11 +84,15 @@ interServerSocket.on('house2SyncResFromFog', function(databean){
         (err)=>{console.log(err);}
     ).then(
         (result)=>{
-            msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
-            saveParam = msgID - msgIDLast;
-            if(saveParam>=60000){
-                dbConn.insertDataToCloud(databean, 'house2');
-            }
+	    if(result != 0){
+                msgIDLast = timeGetter.msgIDToMilli(result[0].msgID);
+                saveParam = msgID - msgIDLast;
+                if(saveParam>=60000){
+                    dbConn.insertDataToCloud(databean, 'house2');
+                }
+	    }else if(result == 0){
+		dbConn.insertDataToCloud(databean, 'house2');
+	    }
         }
     );
 });
@@ -101,6 +118,7 @@ cloudApp.get('/pastdatapage.do', function(req, res){
 });
 
 cloudApp.post('/loginClick.do', function(req, res){
+    interServerSocket.disconnect();
     console.log('Log-in button was clicked.');
     var id = req.body.logID;
     var pw = req.body.password;
@@ -115,6 +133,8 @@ cloudApp.post('/loginClick.do', function(req, res){
             console.log(resultValue.id+'님 환영합니다. ');
             res.redirect(fogAddress+'/realdata.do?user='+resultValue.id+'&userLoginClickTime='+userLoginClickTime);
         }
+    }).then(function(){
+	interServerSocket.connect();
     });
 });
 
