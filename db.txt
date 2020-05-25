@@ -173,6 +173,15 @@ GROUP BY table_name
 ORDER BY data_length DESC LIMIT 10;
 
 
+SELECT 
+table_name,
+table_rows,
+round(data_length/(1024*1024),2) as 'DATA_SIZE(MB)' 
+FROM information_schema.TABLES 
+WHERE table_schema = 'farmData' 
+GROUP BY table_name 
+ORDER BY data_length DESC LIMIT 10;
+
 CREATE TABLE responseTime(
     num             INT PRIMARY KEY AUTO_INCREMENT,
     currentTime	    VARCHAR(10),
